@@ -1,38 +1,44 @@
 import React, { useState, useEffect } from "react";
 
 function Stopwatch() {
-  const [time, setTime] = useState(0);
-  const [running, setRunning] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    let interval;
-
-    if (running) {
+    let interval = null;
+    if (isActive) {
       interval = setInterval(() => {
-        setTime((prevTime) => prevTime + 1);
+        setSeconds((seconds) => seconds + 1);
       }, 1000);
-    } else if (!running && time !== 0) {
+    } else if (!isActive && seconds !== 0) {
       clearInterval(interval);
     }
-
     return () => clearInterval(interval);
-  }, [running, time]);
+  }, [isActive, seconds]);
 
   function toggle() {
-    setRunning(!running);
+    setIsActive(!isActive);
   }
 
   function reset() {
-    setTime(0);
-    setRunning(false);
+    setSeconds(0);
+    setIsActive(false);
+  }
+
+  function formatTime(time) {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
   }
 
   return (
     <div>
       <h2>Stopwatch</h2>
-      <div>Time: {new Date(time * 1000).toISOString().substr(14, 8)}</div>
-      <button onClick={toggle}>{running ? "Stop" : "Start"}</button>
-      <button onClick={reset}>Reset</button>
+      <div>Time: {formatTime(seconds)}</div>
+      <button onClick={toggle}>{isActive ? "Stop" : "Start"}</button>
+      <button onClick={reset} disabled={isActive}>
+        Reset
+      </button>
     </div>
   );
 }
